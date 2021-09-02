@@ -18,6 +18,7 @@
 #define EXCEPTION_INSN_ACCESS_FAULT 1
 #define EXCEPTION_ILLEGAL_INSN 2
 #define EXCEPTION_BREAKPOINT 3
+#define EXCEPTION_ECALL_U 8
 #define EXCEPTION_ECALL_M 11
 
 .section .text.handlers
@@ -42,6 +43,8 @@
 .global m_fast13_irq_handler
 .global m_fast14_irq_handler
 .global m_fast15_irq_handler
+.global end_handler_incr_mepc
+.global handle_ecall
 
 .weak u_sw_irq_handler
 .weak m_software_irq_handler
@@ -63,7 +66,7 @@
 .weak m_fast13_irq_handler
 .weak m_fast14_irq_handler
 .weak m_fast15_irq_handler
-
+.weak handle_ecall
 
 /* exception handling */
 __no_irq_handler:
@@ -154,6 +157,8 @@ u_sw_irq_handler:
 	li t1, EXCEPTION_ILLEGAL_INSN
 	beq t0, t1, handle_illegal_insn
 	li t1, EXCEPTION_ECALL_M
+	beq t0, t1, handle_ecall
+	li t1, EXCEPTION_ECALL_U
 	beq t0, t1, handle_ecall
 	li t1, EXCEPTION_BREAKPOINT
 	beq t0, t1, handle_ebreak
